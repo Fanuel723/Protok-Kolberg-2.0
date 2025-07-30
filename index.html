@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protokół Kolberg 2.0 - Integracja Rozwiązań</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-title"><img src="img/PROTOKOŁKOLBERG2.0.svg" alt="Protokół Kolberg 2.0 Logo" class="logo"> Protokół Kolberg 2.0</h1>
+                <ul class="nav-menu">
+                    <li><a href="#aspid">ASPID</a></li>
+                    <li><a href="#mkp2">MKP2</a></li>
+                    <li><a href="#imwdp">IMWDP</a></li>
+                    <li><a href="#integration">Integracja</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="container">
+                <h2>Inteligentna Integracja Rozwiązań</h2>
+                <p>Kompleksowy system łączący automatyzację pozyskiwania danych, komunikację protokołową i wizualizację przestrzenną</p>
+            </div>
+        </section>
+
+        <section id="aspid" class="module-section">
+            <div class="container">
+                <h2><img src="img/magnifying_glass.png" alt="ASPID Icon" class="section-icon"> ASPID - Zautomatyzowany System Pozyskiwania i Indeksowania Danych</h2>
+                <div class="module-content">
+                    <div class="module-description">
+                        <h3>Funkcjonalności</h3>
+                        <ul>
+                            <li>Automatyczne rozpoznawanie tekstu (OCR)</li>
+                            <li>Transkrypcja audio na tekst</li>
+                            <li>Ekstrakcja i zarządzanie metadanymi</li>
+                            <li>Indeksowanie i wyszukiwanie</li>
+                        </ul>
+                    </div>
+                    <div class="demo-panel">
+                        <h3>Demo OCR/Transkrypcji</h3>
+                        <div class="upload-area" id="uploadArea">
+                            <p>Przeciągnij plik lub kliknij aby wybrać</p>
+                            <input type="file" id="fileInput" accept="image/*,audio/*" hidden>
+                        </div>
+                        <div id="processingResult" class="result-area" style="display: none;">
+                            <h4>Wynik przetwarzania:</h4>
+                            <div id="resultContent"></div>
+                            <div id="metadata"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mkp2" class="module-section">
+            <div class="container">
+                <h2><img src="img/fire.png" alt="MKP2 Icon" class="section-icon"> MKP2 - Moduł Komunikacyjny Protokół Kolberg 2.0</h2>
+                <div class="module-content">
+                    <div class="module-description">
+                        <h3>Protokół Komunikacyjny</h3>
+                        <ul>
+                            <li>Implementacja w języku C</li>
+                            <li>Wysoka wydajność i niezawodność</li>
+                            <li>Bezpieczna wymiana danych</li>
+                            <li>Kompatybilność z Super-wtyczką</li>
+                        </ul>
+                    </div>
+                    <div class="demo-panel">
+                        <h3>Symulator Komunikacji</h3>
+                        <div class="communication-demo">
+                            <div class="message-input">
+                                <input type="text" id="messageInput" placeholder="Wprowadź wiadomość...">
+                                <button onclick="sendMessage()">Wyślij</button>
+                            </div>
+                            <div class="message-log" id="messageLog">
+                                <div class="log-entry system">System: Protokół Kolberg 2.0 gotowy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="imwdp" class="module-section">
+            <div class="container">
+                <h2><img src="img/map.png" alt="IMWDP Icon" class="section-icon"> IMWDP - Interaktywny Moduł Wizualizacji Danych Przestrzennych</h2>
+                <div class="module-content">
+                    <div class="module-description">
+                        <h3>Wizualizacja Geolokalizacyjna</h3>
+                        <ul>
+                            <li>Integracja danych KML</li>
+                            <li>Interaktywne mapy</li>
+                            <li>Analiza przestrzenna</li>
+                            <li>Projekt Szeptańce</li>
+                        </ul>
+                    </div>
+                    <div class="demo-panel">
+                        <h3>Mapa Interaktywna</h3>
+                        <div id="map" class="map-container"></div>
+                        <div class="map-controls">
+                            <button onclick="loadKMLData()">Załaduj dane KML</button>
+                            <button onclick="showSusurrersProject()">Projekt Szeptańce</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="integration" class="module-section">
+            <div class="container">
+                <h2><img src="img/star.png" alt="Integration Icon" class="section-icon"> Synergie i Integracja</h2>
+                <div class="integration-diagram">
+                    <div class="integration-flow">
+                        <div class="flow-step">
+                            <h3>ASPID</h3>
+                            <p>Pozyskiwanie danych</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <h3>MKP2</h3>
+                            <p>Komunikacja</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <h3>IMWDP</h3>
+                            <p>Wizualizacja</p>
+                        </div>
+                    </div>
+                    <div class="integration-benefits">
+                        <h3>Korzyści z Integracji</h3>
+                        <ul>
+                            <li>Automatyzacja przepływu danych</li>
+                            <li>Spójność systemowa</li>
+                            <li>Skalowalność rozwiązania</li>
+                            <li>Efektywność operacyjna</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Protokół Kolberg 2.0 - Integracja Rozwiązań</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+

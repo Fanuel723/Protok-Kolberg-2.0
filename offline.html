@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Protokół Kolberg 2.0</title>
+    <style>
+        :root {
+            --witcher-dark: #0a0a0a;
+            --witcher-gold: #d7cbac;
+            --witcher-brown: #8B4513;
+            --font-primary: 'Cinzel', serif;
+            --font-secondary: 'Open Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-secondary);
+            background: var(--witcher-dark);
+            color: var(--witcher-gold);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .offline-container {
+            max-width: 600px;
+            padding: 3rem;
+            background: rgba(215, 203, 172, 0.05);
+            border: 1px solid rgba(215, 203, 172, 0.2);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        h1 {
+            font-family: var(--font-primary);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--witcher-gold), var(--witcher-brown));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .offline-features {
+            text-align: left;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid var(--witcher-brown);
+        }
+
+        .offline-features h3 {
+            font-family: var(--font-primary);
+            color: var(--witcher-gold);
+            margin-bottom: 1rem;
+        }
+
+        .offline-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .offline-features li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .offline-features li::before {
+            content: "✓";
+            color: var(--witcher-brown);
+            font-weight: bold;
+        }
+
+        .retry-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, var(--witcher-brown), #CD853F);
+            color: var(--witcher-gold);
+            border: none;
+            border-radius: 8px;
+            font-family: var(--font-secondary);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.3);
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.4);
+        }
+
+        .network-status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(215, 203, 172, 0.1);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-offline {
+            background: #ff4444;
+        }
+
+        .status-online {
+            background: #44ff44;
+        }
+
+        @media (max-width: 768px) {
+            .offline-container {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .offline-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">🏰</div>
+        
+        <h1>Tryb Offline</h1>
+        
+        <p>
+            Protokół Kolberg 2.0 działa w trybie offline. Niektóre funkcjonalności są ograniczone, 
+            ale możesz nadal korzystać z podstawowych funkcji aplikacji.
+        </p>
+
+        <div class="offline-features">
+            <h3>Dostępne funkcje offline:</h3>
+            <ul>
+                <li>Przeglądanie zapisanych legend</li>
+                <li>Dodawanie nowych legend do kolejki</li>
+                <li>Przeglądanie manuskryptów</li>
+                <li>Podstawowe funkcje nawigacji</li>
+                <li>Automatyczna synchronizacja po powrocie online</li>
+            </ul>
+        </div>
+
+        <button class="retry-btn" onclick="window.location.reload()">
+            <span>🔄</span>
+            Spróbuj ponownie
+        </button>
+
+        <div class="network-status">
+            <span class="status-indicator status-offline" id="status-indicator"></span>
+            <span id="status-text">Brak połączenia z internetem</span>
+        </div>
+    </div>
+
+    <script>
+        // Monitor network status
+        function updateNetworkStatus() {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            
+            if (navigator.onLine) {
+                indicator.className = 'status-indicator status-online';
+                text.textContent = 'Połączenie przywrócone - odświeżanie...';
+                
+                // Auto-reload when back online
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } else {
+                indicator.className = 'status-indicator status-offline';
+                text.textContent = 'Brak połączenia z internetem';
+            }
+        }
+
+        // Listen for network changes
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        // Initial status check
+        updateNetworkStatus();
+
+        // Periodic retry
+        setInterval(() => {
+            if (navigator.onLine) {
+                fetch('/')
+                    .then(() => {
+                        window.location.href = '/';
+                    })
+                    .catch(() => {
+                        // Still offline
+                    });
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
+
