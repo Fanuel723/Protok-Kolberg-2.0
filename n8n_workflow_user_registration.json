@@ -1,0 +1,102 @@
+{
+  "name": "PWA User Registration",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "user-registration",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ],
+      "webhookId": "user-registration-webhook"
+    },
+    {
+      "parameters": {
+        "sheetId": "YOUR_SHEET_ID",
+        "range": "A:B",
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        },
+        "fields": {
+          "endpoint": "={{$json.body.endpoint}}",
+          "subscription": "={{JSON.stringify($json.body)}}"
+        }
+      },
+      "name": "Store Subscription",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIALS_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "subscription": "={{$json.body}}",
+        "payload": "{\"title\":\"Welcome to Protokół Kolberg 2.0!\",\"body\":\"You will now receive notifications about new discoveries.\"}",
+        "options": {}
+      },
+      "name": "Send Welcome Notification",
+      "type": "n8n-nodes-base.webPush",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ],
+      "credentials": {
+        "webPushVapid": {
+          "id": "YOUR_VAPID_CREDENTIALS_ID",
+          "name": "VAPID Credentials"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Store Subscription",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Subscription": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "id": "1"
+}
