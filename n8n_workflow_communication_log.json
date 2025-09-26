@@ -1,0 +1,70 @@
+{
+  "name": "MKP2: Communication Log",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "formId": "YOUR_GOOGLE_FORM_ID"
+      },
+      "name": "On New Form Submission",
+      "type": "n8n-nodes-base.googleFormsTrigger",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ],
+      "credentials": {
+        "googleFormsOAuth2Api": {
+          "id": "YOUR_GOOGLE_CREDENTIALS_ID",
+          "name": "Google Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sheetId": "YOUR_GOOGLE_SHEET_ID_FOR_LOGS",
+        "range": "A:B",
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        },
+        "fields": {
+          "values": [
+            {
+              "timestamp": "={{$json.submissionDate}}",
+              "message": "={{$json.responses['YOUR_QUESTION_ID_FROM_FORM'].answers[0].value}}"
+            }
+          ]
+        }
+      },
+      "name": "Save to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        600,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_CREDENTIALS_ID",
+          "name": "Google Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On New Form Submission": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "id": "5"
+}

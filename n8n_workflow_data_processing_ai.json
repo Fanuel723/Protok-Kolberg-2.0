@@ -1,0 +1,157 @@
+{
+  "name": "ASPID: Data Processing with AI Validation",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "folderId": "YOUR_GOOGLE_DRIVE_FOLDER_ID"
+      },
+      "name": "On New File in Drive",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_CREDENTIALS_ID",
+          "name": "Google Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fileId": "={{$json.id}}",
+        "binary": true
+      },
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        400,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "YOUR_GOOGLE_CREDENTIALS_ID",
+          "name": "Google Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "binaryData": true,
+        "options": {}
+      },
+      "name": "OCR - Extract Text",
+      "type": "n8n-nodes-base.ocr",
+      "typeVersion": 1,
+      "position": [
+        600,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-3.5-turbo",
+        "prompt": "Przeanalizuj poniższy tekst z historycznego dokumentu i wykonaj następujące zadania:\n1. Streść tekst w 3 zdaniach.\n2. Wylistuj wszystkie wspomniane postacie i miejsca.\n3. Zasugeruj 3 tagi lub kategorie dla tego dokumentu.\n\nTekst do analizy:\n{{$json.text}}"
+      },
+      "name": "AI Validation",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        800,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIALS_ID",
+          "name": "OpenAI Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sheetId": "YOUR_GOOGLE_SHEET_ID",
+        "range": "A:E",
+        "options": {
+          "valueInputMode": "USER_ENTERED"
+        },
+        "fields": {
+          "values": [
+            {
+              "name": "={{$node['On New File in Drive'].json.name}}",
+              "createdAt": "={{$node['On New File in Drive'].json.createdTime}}",
+              "ocrText": "={{$node['OCR - Extract Text'].json.text}}",
+              "aiAnalysis": "={{$node['AI Validation'].json.choices[0].message.content}}",
+              "link": "={{$node['On New File in Drive'].json.webViewLink}}"
+            }
+          ]
+        }
+      },
+      "name": "Save to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        1000,
+        300
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_CREDENTIALS_ID",
+          "name": "Google Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On New File in Drive": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "OCR - Extract Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OCR - Extract Text": {
+      "main": [
+        [
+          {
+            "node": "AI Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Validation": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "id": "4"
+}
