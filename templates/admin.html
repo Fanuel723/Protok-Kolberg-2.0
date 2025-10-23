@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Analityczny - Protokół Kolberg 2.0</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #d7cbac;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .admin-container {
+            width: 90%;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #2a2a2a;
+            border: 1px solid #d7cbac;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #d7cbac;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .logout-button {
+            padding: 0.5rem 1rem;
+            background-color: #d7cbac;
+            color: #1a1a1a;
+            text-decoration: none;
+            border: 1px solid #d7cbac;
+        }
+        .teczki-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .teczki-table th, .teczki-table td {
+            border: 1px solid #d7cbac;
+            padding: 0.8rem;
+            text-align: left;
+        }
+        .status-Wymaga.Weryfikacji {
+            background-color: #5a2a2a;
+            font-weight: bold;
+        }
+        .admin-filters {
+            margin-bottom: 1.5rem;
+        }
+        .admin-filters a {
+            margin-right: 1rem;
+            color: #d7cbac;
+            text-decoration: none;
+            padding: 0.5rem;
+            border: 1px solid transparent;
+        }
+        .admin-filters a.active {
+            border-color: #d7cbac;
+        }
+        .teczki-table th {
+            background-color: #3a3a3a;
+        }
+        .action-link {
+            color: #d7cbac;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>Panel Analityczny: Teczki</h1>
+            <a href="{{ url_for('logout') }}" class="logout-button">Wyloguj</a>
+        </div>
+
+        <div class="admin-filters">
+            <a href="{{ url_for('admin') }}" class="{{ 'active' if not active_filter }}">Wszystkie</a>
+            <a href="{{ url_for('admin', status='Wymaga Weryfikacji') }}" class="{{ 'active' if active_filter == 'Wymaga Weryfikacji' }}">Wymaga Weryfikacji</a>
+            <a href="{{ url_for('admin', status='Nowe') }}" class="{{ 'active' if active_filter == 'Nowe' }}">Nowe</a>
+            <a href="{{ url_for('admin', status='Zatwierdzone') }}" class="{{ 'active' if active_filter == 'Zatwierdzone' }}">Zatwierdzone</a>
+        </div>
+
+        <table class="teczki-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Typ</th>
+                    <th>Treść / Powód Weryfikacji</th>
+                    <th>Status</th>
+                    <th>Kategoria</th>
+                    <th>Data</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teczka in teczki %}
+                <tr class="status-{{ teczka.status.replace(' ', '.') }}">
+                    <td>#{{ teczka.id }}</td>
+                    <td>{{ teczka.submission_type }}</td>
+                    <td>
+                        {% if teczka.status == 'Wymaga Weryfikacji' %}
+                            <strong>{{ teczka.powod_weryfikacji }}</strong><br>
+                        {% endif %}
+                        {{ (teczka.przetworzony_tekst or teczka.original_filename or 'Brak treści')[:80] }}...
+                    </td>
+                    <td>{{ teczka.status }}</td>
+                    <td>{{ teczka.kategoria }}</td>
+                    <td>{{ teczka.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_teczka', teczka_id=teczka.id) }}" class="action-link">Szczegóły</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center;">Brak teczek do wyświetlenia.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

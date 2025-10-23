@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logowanie - Protokół Kolberg 2.0</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1a1a1a;
+            color: #d7cbac;
+        }
+        .login-container {
+            padding: 2rem;
+            background-color: #2a2a2a;
+            border: 1px solid #d7cbac;
+            box-shadow: 0 0 15px rgba(215, 203, 172, 0.2);
+            text-align: center;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            background-color: #1a1a1a;
+            border: 1px solid #d7cbac;
+            color: #d7cbac;
+        }
+        .form-button {
+            padding: 0.5rem 1.5rem;
+            background-color: #d7cbac;
+            color: #1a1a1a;
+            border: none;
+            cursor: pointer;
+        }
+        .flashes {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 1rem;
+        }
+        .flashes li {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .flashes .success { background-color: #2a5a2a; }
+        .flashes .danger { background-color: #5a2a2a; }
+        .flashes .info { background-color: #2a2a5a; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Dostęp do Panelu Analitycznego</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+              <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <form method="post">
+            <input type="text" name="username" placeholder="Użytkownik" class="form-input" required>
+            <br>
+            <input type="password" name="password" placeholder="Hasło" class="form-input" required>
+            <br>
+            <button type="submit" class="form-button">Zaloguj</button>
+        </form>
+    </div>
+</body>
+</html>
