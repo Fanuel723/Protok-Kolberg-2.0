@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protokół Kolberg 2.0 - Rewritten</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="manifest" href="{{ url_for('static', filename='js/manifest.json') }}">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-title">Protokół Kolberg 2.0</h1>
+                <ul class="nav-menu">
+                    <li><a href="#aspid">ASPID</a></li>
+                    <li><a href="#mkp2">MKP2</a></li>
+                    <li><a href="#imwdp">IMWDP</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="container">
+                <h2>Inteligentna Integracja Rozwiązań</h2>
+                <p>Przepisana aplikacja, zbudowana na solidnych fundamentach.</p>
+            </div>
+        </section>
+
+        <section id="aspid" class="module-section">
+            <div class="container">
+                <h2>ASPID - Zautomatyzowany System Pozyskiwania i Indeksowania Danych</h2>
+                <div class="demo-panel">
+                    <h3>Demo OCR/Transkrypcji</h3>
+                    <div class="upload-area" id="aspid-dropzone">
+                        <p>Przeciągnij plik lub kliknij aby wybrać</p>
+                    </div>
+                    <div id="processingResult" class="result-area" style="display: none;">
+                        <h4>Wynik przetwarzania:</h4>
+                        <div id="resultContent"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mkp2" class="module-section">
+            <div class="container">
+                <h2>MKP2 - Moduł Komunikacyjny Protokół Kolberg 2.0</h2>
+                <div class="communication-demo">
+                    <div class="message-input">
+                        <input type="text" id="message-input" placeholder="Wprowadź wiadomość...">
+                        <button id="send-message">Wyślij</button>
+                    </div>
+                    <div class="message-log" id="message-log"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="imwdp" class="module-section">
+             <div class="container">
+                <h2>IMWDP - Interaktywny Moduł Wizualizacji Danych Przestrzennych</h2>
+                <div class="demo-panel">
+                    <h3>Mapa Interaktywna</h3>
+                    <div id="map" class="map-container" style="height: 300px; background: #333;"></div>
+                    <div class="map-controls">
+                        <button id="load-kml">Załaduj dane KML</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Protokół Kolberg 2.0 - Rewritten</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{{ url_for('static', filename='js/sw.js') }}").then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+:root {
+    --witcher-dark: #0a0a0a;
+    --witcher-gold: #d7cbac;
+    --witcher-red: #dc3545;
+    --font-primary: 'Cinzel', serif;
+    --font-secondary: 'Open Sans', sans-serif;
+}
+
+body {
+    background-color: var(--witcher-dark);
+    color: var(--witcher-gold);
+    font-family: var(--font-secondary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.navbar {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.nav-title {
+    font-family: var(--font-primary);
+    font-size: 1.5rem;
+}
+
+.nav-menu {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-menu a {
+    color: var(--witcher-gold);
+    text-decoration: none;
+    font-family: var(--font-primary);
+    transition: color 0.3s;
+}
+
+.nav-menu a:hover {
+    color: var(--witcher-red);
+}
+
+.hero-section {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://placekitten.com/1920/1080') no-repeat center center/cover;
+}
+
+.module-section {
+    padding: 4rem 0;
+    border-bottom: 1px solid #333;
+}
+
+.module-section h2 {
+    font-family: var(--font-primary);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.upload-area, .communication-demo {
+    background: #1a1a1a;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+    margin-top: 1rem;
+}
+
+.message-input {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+#message-input {
+    flex-grow: 1;
+    padding: 0.5rem;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: var(--witcher-gold);
+}
+
+#send-message {
+    padding: 0.5rem 1rem;
+    background: var(--witcher-gold);
+    color: var(--witcher-dark);
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#send-message:hover {
+    background: var(--witcher-red);
+    color: white;
+}
+
+.message-log {
+    height: 200px;
+    overflow-y: auto;
+    background: #2a2a2a;
+    padding: 1rem;
+    border: 1px solid #444;
+}
