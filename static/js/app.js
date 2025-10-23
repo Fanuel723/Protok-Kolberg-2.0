@@ -7,7 +7,86 @@ class ProtocolKolberg {
     init() {
         console.log("Initializing ProtocolKolberg...");
         this.initCommunication();
+        this.initMap();
+        this.initParticles();
+        this.initScrollEffects();
+        this.initUpload();
         this.initPWAFeatures();
+    }
+
+    initUpload() {
+        const dropzone = document.getElementById('aspid-dropzone');
+        if (dropzone) {
+            dropzone.addEventListener('click', () => this.triggerFileInput());
+            // Add drag and drop listeners if you want to expand this
+        }
+    }
+
+    triggerFileInput() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                this.uploadFile(file);
+            }
+        };
+        input.click();
+    }
+
+    async uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(`${this.apiBase}/aspid/upload`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            console.log('File uploaded:', data);
+            alert(`Plik ${data.filename} został wysłany.`);
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Błąd podczas wysyłania pliku.');
+        }
+    }
+
+    initParticles() {
+        if (document.getElementById('particles-js')) {
+            particlesJS('particles-js', {
+                "particles": { "number": { "value": 80 }, "color": { "value": "#d7cbac" }, "shape": { "type": "circle" }, "opacity": { "value": 0.5, "random": true }, "size": { "value": 3, "random": true }, "line_linked": { "enable": false }, "move": { "enable": true, "speed": 1, "direction": "none", "out_mode": "out" } },
+                "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": false }, "onclick": { "enable": false } }, "modes": { "repulse": { "distance": 50 } } }
+            });
+        }
+    }
+
+    initScrollEffects() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.module-section').forEach(section => {
+            observer.observe(section);
+        });
+    }
+
+    initMap() {
+        if (document.getElementById('map')) {
+            const map = L.map('map').setView([52.2297, 21.0122], 13); // Warsaw coordinates
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            L.marker([52.2297, 21.0122]).addTo(map)
+                .bindPopup('Przykładowy znacznik w Warszawie.')
+                .openPopup();
+        }
     }
 
     initCommunication() {

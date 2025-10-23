@@ -9,6 +9,7 @@
     <link rel="manifest" href="{{ url_for('static', filename='js/manifest.json') }}">
 </head>
 <body>
+    <div id="particles-js"></div>
     <header>
         <nav class="navbar">
             <div class="nav-container">
@@ -33,15 +34,8 @@
         <section id="aspid" class="module-section">
             <div class="container">
                 <h2>ASPID - Zautomatyzowany System Pozyskiwania i Indeksowania Danych</h2>
-                <div class="demo-panel">
-                    <h3>Demo OCR/Transkrypcji</h3>
-                    <div class="upload-area" id="aspid-dropzone">
-                        <p>Przeciągnij plik lub kliknij aby wybrać</p>
-                    </div>
-                    <div id="processingResult" class="result-area" style="display: none;">
-                        <h4>Wynik przetwarzania:</h4>
-                        <div id="resultContent"></div>
-                    </div>
+                <div id="aspid-dropzone" class="upload-area">
+                    <p>Przeciągnij plik lub kliknij aby wybrać</p>
                 </div>
             </div>
         </section>
@@ -62,13 +56,7 @@
         <section id="imwdp" class="module-section">
              <div class="container">
                 <h2>IMWDP - Interaktywny Moduł Wizualizacji Danych Przestrzennych</h2>
-                <div class="demo-panel">
-                    <h3>Mapa Interaktywna</h3>
-                    <div id="map" class="map-container" style="height: 300px; background: #333;"></div>
-                    <div class="map-controls">
-                        <button id="load-kml">Załaduj dane KML</button>
-                    </div>
-                </div>
+                <div id="map" style="height: 400px; background: #333; border-radius: 8px;"></div>
             </div>
         </section>
     </main>
@@ -79,6 +67,7 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script>
