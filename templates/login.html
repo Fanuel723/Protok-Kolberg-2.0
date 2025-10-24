@@ -65,10 +65,14 @@
         {% endwith %}
 
         <form method="post">
-            <input type="text" name="username" placeholder="Użytkownik" class="form-input" required>
-            <br>
-            <input type="password" name="password" placeholder="Hasło" class="form-input" required>
-            <br>
+            <div class="form-group">
+                <label for="username">Użytkownik</label>
+                <input type="text" id="username" name="username" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Hasło</label>
+                <input type="password" id="password" name="password" class="form-input" required>
+            </div>
             <button type="submit" class="form-button">Zaloguj</button>
         </form>
     </div>

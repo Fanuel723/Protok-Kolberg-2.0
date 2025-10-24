@@ -4,6 +4,7 @@ Flask-Limiter
 Pillow
 google-cloud-vision
 google-cloud-speech
+google-generativeai
 werkzeug
 playwright
 gunicorn

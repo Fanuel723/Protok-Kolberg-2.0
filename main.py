@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for, flash
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for, flash, g
 from functools import wraps
 from flask_cors import CORS
 from flask_limiter import Limiter
@@ -10,7 +10,7 @@ from datetime import datetime
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from google.cloud import vision, speech
-from flask import g
+import google.generativeai as genai
 
 # --- App Configuration & Constants ---
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -23,6 +23,7 @@ DATABASE = 'database.db'
 MIN_CONTENT_LENGTH = 15
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'default_password')
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp3', 'wav', 'mp4', 'mov'}
 CORS(app)
 limiter = Limiter(get_remote_address, app=app, default_limits=["200 per day", "50 per hour"])
@@ -41,8 +42,8 @@ def init_db():
         db.commit()
 
 @app.teardown_appcontext
-def close_db(error):
-    db = g.pop('db', None)
+def close_connection(exception):
+    db = getattr(g, '_database', None)
     if db is not None:
         db.close()
 
@@ -131,7 +132,7 @@ def process_file_submission(db, submission_id, file_path, file_type):
         przetworzony_tekst = get_transcription(file_path)
 
     # --- Step 2: Determine status based on extracted data ---
-    
+
     # First, check text content if we have any. This handles short text, profanity, etc.
     if przetworzony_tekst:
         status, powod_weryfikacji = run_content_filters(przetworzony_tekst)
@@ -176,9 +177,9 @@ def api_mkp2_send():
     db = get_db()
     cursor = db.execute("INSERT INTO submissions (submission_type, content) VALUES ('message', ?)", (message,))
     submission_id = cursor.lastrowid
-
-    status, powod_weryfikacji = run_content_filters(message)
     
+    status, powod_weryfikacji = run_content_filters(message)
+
     db.execute("INSERT INTO teczki (submission_id, status, powod_weryfikacji, przetworzony_tekst) VALUES (?, ?, ?, ?)",
                (submission_id, status, powod_weryfikacji, message))
     db.commit()
@@ -202,6 +203,25 @@ def api_aspid_upload():
     db.commit()
     return jsonify({'status': 'success'})
 
+@app.route('/api/gemini/analyze', methods=['POST'])
+@login_required
+def gemini_analyze():
+    if not GEMINI_API_KEY:
+        return jsonify({'error': 'Gemini API key not configured on the server.'}), 500
+
+    text_to_analyze = request.json.get('text', '')
+    if not text_to_analyze:
+        return jsonify({'error': 'No text provided for analysis.'}), 400
+
+    try:
+        genai.configure(api_key=GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        prompt = f"Jesteś asystentem analityka w projekcie 'Protokół Kolberg 2.0', który zbiera lokalne legendy i tajemnicze opowieści. Przeanalizuj poniższy tekst zgłoszenia i przygotuj krótkie, zwięzłe podsumowanie (2-3 zdania) dla analityka. Skup się na kluczowych postaciach, miejscach i wydarzeniach. Tekst do analizy: '{text_to_analyze}'"
+        response = model.generate_content(prompt)
+        return jsonify({'analysis': response.text})
+    except Exception as e:
+        return jsonify({'error': f'Error during Gemini API call: {e}'}), 500
+
 # --- Admin Panel Routes ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -224,7 +244,7 @@ def admin():
     status_filter = request.args.get('status')
     db = get_db()
     # Corrected the query to include the submission timestamp (s.timestamp)
-    query = "SELECT t.id, s.submission_type, s.timestamp, t.kategoria, t.powod_weryfikacji, t.przetworzony_tekst, s.original_filename, t.status FROM teczki t JOIN submissions s ON t.submission_id = s.id"
+    query = "SELECT t.id, s.submission_type, s.timestamp, t.powod_weryfikacji, t.przetworzony_tekst, s.original_filename, t.status FROM teczki t JOIN submissions s ON t.submission_id = s.id"
     params = []
     if status_filter:
         query += " WHERE t.status = ?"
@@ -260,5 +280,5 @@ def edit_teczka(teczka_id):
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
-    init_db()
+    # init_db() # This will be moved to a separate script to prevent data loss on restart
     app.run(host='0.0.0.0', port=5000)
