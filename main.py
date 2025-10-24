@@ -10,6 +10,7 @@ from datetime import datetime
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 from google.cloud import vision, speech
+from flask import g
 
 # --- App Configuration & Constants ---
 app = Flask(__name__, template_folder='templates', static_folder='static')
@@ -38,6 +39,12 @@ def init_db():
         with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
+
+@app.teardown_appcontext
+def close_db(error):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
 
 # --- Authentication ---
 def login_required(f):
@@ -217,7 +224,7 @@ def admin():
     status_filter = request.args.get('status')
     db = get_db()
     # Corrected the query to include the submission timestamp (s.timestamp)
-    query = "SELECT t.id, s.submission_type, s.timestamp, t.powod_weryfikacji, t.przetworzony_tekst, s.original_filename, t.status FROM teczki t JOIN submissions s ON t.submission_id = s.id"
+    query = "SELECT t.id, s.submission_type, s.timestamp, t.kategoria, t.powod_weryfikacji, t.przetworzony_tekst, s.original_filename, t.status FROM teczki t JOIN submissions s ON t.submission_id = s.id"
     params = []
     if status_filter:
         query += " WHERE t.status = ?"

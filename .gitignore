@@ -13,3 +13,6 @@ __pycache__/
 # Ignore temporary verification files
 verify_app.py
 verification_screenshot.png
+
+#Ignore IntelliJ IDE settings folder
+.idea/

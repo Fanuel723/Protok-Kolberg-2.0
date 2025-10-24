@@ -107,7 +107,7 @@
                     </td>
                     <td>{{ teczka.status }}</td>
                     <td>{{ teczka.kategoria }}</td>
-                    <td>{{ teczka.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ teczka.timestamp }}</td>
                     <td>
                         <a href="{{ url_for('edit_teczka', teczka_id=teczka.id) }}" class="action-link">Szczegóły</a>
                     </td>
