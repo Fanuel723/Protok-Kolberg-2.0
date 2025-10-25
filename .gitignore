@@ -1,0 +1,15 @@
+# Ignore the database file
+database.db
+
+# Ignore the uploads directory
+uploads/
+
+# Ignore log files
+*.log
+
+# Ignore Python cache
+__pycache__/
+
+# Ignore temporary verification files
+verify_app.py
+verification_screenshot.png

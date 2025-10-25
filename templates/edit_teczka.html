@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edycja Teczki #{{ teczka.id }} - Protokół Kolberg 2.0</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        body { background-color: #1a1a1a; color: #d7cbac; }
+        .container { width: 90%; margin: 2rem auto; display: flex; gap: 2rem; }
+        .main-content { flex: 3; }
+        .sidebar { flex: 1; }
+        .card { background-color: #2a2a2a; border: 1px solid #d7cbac; padding: 1.5rem; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; }
+        .form-control { width: 100%; padding: 0.5rem; background-color: #1a1a1a; border: 1px solid #d7cbac; color: #d7cbac; }
+        textarea.form-control { min-height: 150px; }
+        .btn-save { padding: 0.7rem 1.5rem; background-color: #d7cbac; color: #1a1a1a; border: none; cursor: pointer; }
+        #map { height: 300px; background-color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <div class="card">
+                <h2>Szczegóły Teczki #{{ teczka.id }}</h2>
+
+                {% if teczka.status == 'Wymaga Weryfikacji' %}
+                <div class="verification-reason">
+                    <strong>Powód Weryfikacji:</strong> {{ teczka.powod_weryfikacji }}
+                </div>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="kategoria">Kategoria</label>
+                        <select id="kategoria" name="kategoria" class="form-control">
+                            {% for kategoria in kategorie %}
+                                <option value="{{ kategoria }}" {% if kategoria == teczka.kategoria %}selected{% endif %}>{{ kategoria }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="Nowe" {% if teczka.status == 'Nowe' %}selected{% endif %}>Nowe</option>
+                            <option value="Weryfikacja" {% if teczka.status == 'Weryfikacja' %}selected{% endif %}>Weryfikacja</option>
+                            <option value="Zatwierdzone" {% if teczka.status == 'Zatwierdzone' %}selected{% endif %}>Zatwierdzone</option>
+                            <option value="Odrzucone" {% if teczka.status == 'Odrzucone' %}selected{% endif %}>Odrzucone</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notatki_analityka">Notatki Analityka</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <textarea id="notatki_analityka" name="notatki_analityka" class="form-control" style="flex-grow: 1;">{{ teczka.notatki_analityka or '' }}</textarea>
+                            <button type="button" id="gemini-analyze-btn" class="btn-save" style="flex-shrink: 0;">Analizuj z AI</button>
+                        </div>
+                    </div>
+                    <input type="hidden" id="latitude" name="latitude" value="{{ teczka.latitude or '' }}">
+                    <input type="hidden" id="longitude" name="longitude" value="{{ teczka.longitude or '' }}">
+                    <input type="hidden" id="zrodlo_gps" name="zrodlo_gps" value="{{ teczka.zrodlo_gps }}">
+                    <button type="submit" class="btn-save">Zapisz Zmiany</button>
+                    <a href="{{ url_for('admin') }}">Anuluj</a>
+                </form>
+            </div>
+            <div class="card">
+                <h3>Mapa Lokalizacji (Źródło: {{ teczka.zrodlo_gps }})</h3>
+                <div id="map"></div>
+                <p>Kliknij na mapę, aby ręcznie ustawić lub skorygować lokalizację.</p>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="card">
+                <h4>Szczegóły Zgłoszenia</h4>
+                <p><strong>Oryginalna nazwa pliku:</strong> {{ teczka.original_filename or 'Brak' }}</p>
+                <p><strong>Typ:</strong> {{ teczka.submission_type }}</p>
+                <p><strong>Data:</strong> {{ submission_timestamp }}</p>
+                <hr>
+                <h4>Przetworzony Tekst</h4>
+                <p id="przetworzony_tekst_content">{{ teczka.przetworzony_tekst or 'Brak przetworzonego tekstu.' }}</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const lat = {{ teczka.latitude or '52.2297' }};
+        const lon = {{ teczka.longitude or '21.0122' }};
+        const map = L.map('map').setView([lat, lon], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        let marker = null;
+        if ({{ teczka.latitude and teczka.longitude and 'true' or 'false' }}) {
+            marker = L.marker([lat, lon]).addTo(map);
+        }
+
+        map.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+            document.getElementById('latitude').value = lat.toFixed(6);
+            document.getElementById('longitude').value = lng.toFixed(6);
+            document.getElementById('zrodlo_gps').value = 'manual';
+
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng).addTo(map);
+            }
+            alert('Lokalizacja GPS została zaktualizowana. Zapisz zmiany, aby ją zatwierdzić.');
+        });
+
+        document.getElementById('gemini-analyze-btn').addEventListener('click', async function() {
+            const button = this;
+            const originalText = button.textContent;
+            button.textContent = 'Analizuję...';
+            button.disabled = true;
+
+            const textToAnalyze = document.getElementById('przetworzony_tekst_content').textContent.trim();
+            if (!textToAnalyze) {
+                alert('Brak przetworzonego tekstu do analizy.');
+                button.textContent = originalText;
+                button.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/gemini/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: textToAnalyze })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('notatki_analityka').value = data.analysis;
+                } else {
+                    alert('Błąd analizy AI: ' + data.error);
+                }
+            } catch (error) {
+                alert('Wystąpił błąd sieciowy podczas komunikacji z API.');
+            } finally {
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
